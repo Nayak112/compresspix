@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CompressPix - Free Image Compressor</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f7fb;
+    color: #111827;
+}
+
+header {
+    background: #111827;
+    color: white;
+    text-align: center;
+    padding: 28px 15px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 32px;
+}
+
+header p {
+    margin: 8px 0 0;
+    color: #d1d5db;
+}
+
+.container {
+    max-width: 600px;
+    margin: 35px auto;
+    padding: 0 18px;
+}
+
+.box {
+    background: white;
+    padding: 30px 20px;
+    border-radius: 18px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+}
+
+.upload {
+    display: block;
+    padding: 22px;
+    border: 2px dashed #9ca3af;
+    border-radius: 12px;
+    cursor: pointer;
+    margin-bottom: 20px;
+}
+
+input[type="file"] {
+    display: none;
+}
+
+button {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 10px;
+    background: #111827;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+button:disabled {
+    background: #9ca3af;
+}
+
+#result {
+    margin-top: 22px;
+    line-height: 1.6;
+}
+
+.download {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 12px 20px;
+    background: #16a34a;
+    color: white;
+    text-decoration: none;
+    border-radius: 10px;
+}
+
+canvas {
+    display: none;
+}
+    .info {
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 0 18px;
+}
+
+.info h2 {
+    font-size: 21px;
+    margin-top: 28px;
+}
+
+.info p {
+    line-height: 1.6;
+    color: #4b5563;
+
+
+
+}
+
+    footer {
+    text-align: center;
+    padding: 25px 15px;
+    margin-top: 40px;
+    background: #111827;
+    color: #d1d5db;
+    font-size: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>CompressPix</h1>
+    <p>Compress Images Online for Free</p>
+</header>
+
+<div class="container">
+
+    <div class="box">
+
+        <label class="upload" for="imageInput">
+            📷 Tap here to select an image
+        </label>
+
+        <input type="file" id="imageInput" accept="image/*">
+<label for="targetSize">Target Size:</label>
+
+<select id="targetSize">
+    <option value="20">20 KB</option>
+    <option value="50">50 KB</option>
+    <option value="100" selected>100 KB</option>
+    <option value="200">200 KB</option>
+    <option value="500">500 KB</option>
+</select>
+        <button id="compressBtn" disabled>
+            Compress Image
+        </button>
+
+        <div id="result"></div>
+
+        <canvas id="canvas"></canvas>
+
+    </div>
+
+</div>
+<section class="info">
+    <h2>How to Compress an Image?</h2>
+
+    <p><strong>1.</strong> Select your image.</p>
+    <p><strong>2.</strong> Choose your target file size.</p>
+    <p><strong>3.</strong> Compress and download your image.</p>
+
+    <h2>Your Privacy Matters 🔒</h2>
+    <p>
+        CompressPix processes your image directly in your browser.
+        Your image is not uploaded to our server.
+    </p>
+</section>
+
+
+    <footer>
+    © 2026 CompressPix • Free Image Compressor
+    <br><br>
+    <a href="privacy.html">Privacy Policy</a> |
+    <a href="terms.html">Terms of Service</a> |
+    <a href="contact.html">Contact</a>
+</footer>
+<script>
+
+const imageInput = document.getElementById("imageInput");
+const compressBtn = document.getElementById("compressBtn");
+const result = document.getElementById("result");
+const canvas = document.getElementById("canvas");
+const targetSize = document.getElementById("targetSize");
+let selectedImage = null;
+
+imageInput.addEventListener("change", function() {
+
+    const file = imageInput.files[0];
+
+    if (!file) return;
+
+    selectedImage = file;
+
+    compressBtn.disabled = false;
+
+    result.innerHTML =
+        "Selected image: " + file.name +
+        "<br>Original size: " +
+        (file.size / 1024).toFixed(1) +
+        " KB";
+
+});
+
+
+compressBtn.addEventListener("click", function() {
+
+    if (!selectedImage) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(event) {
+
+        const img = new Image();
+
+        img.onload = function() {
+
+            let width = img.width;
+            let height = img.height;
+
+            const maxWidth = 1600;
+
+            if (width > maxWidth) {
+
+                height = height * (maxWidth / width);
+                width = maxWidth;
+
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext("2d");
+
+            ctx.drawImage(
+                img,
+                0,
+                0,
+                width,
+                height
+            );
+
+            canvas.toBlob(function(blob) {
+
+                const url = URL.createObjectURL(blob);
+
+                result.innerHTML =
+                    "Original size: " +
+                    (selectedImage.size / 1024).toFixed(1) +
+                    " KB" +
+                    "<br><br>" +
+                    "Compressed size: " +
+                    (blob.size / 1024).toFixed(1) +
+                    " KB" +
+                    "<br>" +
+                   "<a class='download' href='" +
+url +
+"' download='compressed-image.jpg'>" +
+"⬇ Download Compressed Image" +
+"</a>";
+
+            }, "image/jpeg", 0.7);
+
+        };
+
+        img.src = event.target.result;
+
+    };
+
+    reader.readAsDataURL(selectedImage);
+
+});
+
+</script>
+
+</body>
+</html>
